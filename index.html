@@ -1,35 +1,542 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Portfolio – Video Editor</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #1a1a1a;
+    --accent: #e8ff47;
+    --accent2: #ff5c35;
+    --text: #f0ede6;
+    --muted: #7a7870;
+    --border: rgba(255,255,255,0.07);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 4rem;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 0 4rem 5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background: linear-gradient(135deg, #0a0a0a 40%, #161008 100%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(232,255,71,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,255,71,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-reel {
+    position: absolute; top: 8rem; right: 4rem;
+    width: 420px; height: 240px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .hero-reel-inner {
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      45deg,
+      #1a1a1a, #1a1a1a 10px,
+      #151515 10px, #151515 20px
+    );
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 0.75rem;
+  }
+  .play-btn {
+    width: 56px; height: 56px;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.2s, transform 0.2s;
+  }
+  .play-btn:hover { background: var(--accent); transform: scale(1.05); }
+  .play-btn:hover svg path { fill: #0a0a0a; }
+  .play-btn svg { margin-left: 3px; }
+  .reel-label {
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .reel-badge {
+    position: absolute; top: 12px; left: 12px;
+    background: var(--accent); color: #0a0a0a;
+    font-size: 0.6rem; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 2px;
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 620px; }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.5rem;
+  }
+  .hero-tag::before {
+    content: '';
+    display: block; width: 30px; height: 1px; background: var(--accent);
+  }
+  .hero-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 9vw, 7.5rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+  }
+  .hero-name span { color: var(--accent); }
+  .hero-title {
+    font-size: 1rem; color: var(--muted);
+    margin: 1.5rem 0 2.5rem;
+    font-style: italic; letter-spacing: 0.05em;
+  }
+  .hero-cta { display: flex; gap: 1rem; align-items: center; }
+  .btn-primary {
+    background: var(--accent); color: #0a0a0a;
+    padding: 0.75rem 2rem; font-size: 0.8rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    font-weight: 500; font-family: 'DM Sans', sans-serif;
+    border: none; cursor: pointer; transition: opacity 0.2s;
+    text-decoration: none; border-radius: 2px;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-ghost {
+    color: var(--muted); font-size: 0.8rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    text-decoration: none; display: flex; align-items: center; gap: 8px;
+    transition: color 0.2s;
+  }
+  .btn-ghost:hover { color: var(--text); }
+  .btn-ghost::after { content: '↓'; font-size: 1rem; }
+
+  /* MARQUEE */
+  .marquee-wrap {
+    overflow: hidden; border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 0.9rem 0; background: var(--bg2);
+  }
+  .marquee-track {
+    display: flex; gap: 3rem; width: max-content;
+    animation: marquee 22s linear infinite;
+  }
+  .marquee-item {
+    display: flex; align-items: center; gap: 1rem;
+    font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--muted); white-space: nowrap;
+  }
+  .marquee-dot { color: var(--accent); font-size: 1rem; }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ABOUT */
+  section { padding: 6rem 4rem; }
+  .section-label {
+    font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; max-width: 40px; height: 1px; background: var(--accent); }
+
+  .about-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem;
+    align-items: center; margin-top: 2rem;
+  }
+  .about-photo-wrap { position: relative; }
+  .about-photo {
+    width: 100%; aspect-ratio: 3/4;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 1rem; color: var(--muted);
+    font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .about-photo-icon {
+    width: 48px; height: 48px; border: 1px solid var(--muted);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  .about-accent-line {
+    position: absolute; bottom: -1.5rem; left: 2rem; right: -2rem;
+    height: 1px; background: var(--accent); opacity: 0.4;
+  }
+  .about-stats {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+    margin-top: 3rem; border: 1px solid var(--border);
+  }
+  .stat-box { padding: 1.25rem; background: var(--bg2); text-align: center; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem; color: var(--accent); line-height: 1;
+  }
+  .stat-desc {
+    font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-top: 4px;
+  }
+  .about-text h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+    line-height: 1; margin-bottom: 1.5rem; color: var(--text);
+  }
+  .about-text p { color: var(--muted); margin-bottom: 1.25rem; font-size: 0.95rem; }
+  .skills-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 2rem; }
+  .skill-tag {
+    padding: 5px 14px; border: 1px solid var(--border);
+    font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); border-radius: 2px; transition: border-color 0.2s, color 0.2s;
+  }
+  .skill-tag:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* WORK */
+  #work { background: var(--bg2); }
+  .work-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 3rem;
+  }
+  .work-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1;
+  }
+  .filter-row { display: flex; gap: 0.5rem; }
+  .filter-btn {
+    padding: 6px 16px; font-size: 0.7rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); cursor: pointer; border-radius: 2px;
+    font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    border-color: var(--accent); color: var(--accent);
+    background: rgba(232,255,71,0.05);
+  }
+  .work-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+    background: var(--border);
+  }
+  .work-card { background: var(--bg2); position: relative; overflow: hidden; cursor: pointer; }
+  .work-card:first-child { grid-column: span 2; }
+  .work-thumb {
+    aspect-ratio: 16/10;
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; transition: transform 0.4s;
+  }
+  .work-card:first-child .work-thumb { aspect-ratio: 21/10; }
+  .work-card:hover .work-thumb { transform: scale(1.03); }
+  .thumb-pattern { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 0.5rem; }
+  .thumb-p1 { background: repeating-linear-gradient(0deg,#1a1a1a,#1a1a1a 2px,#111 2px,#111 8px); }
+  .thumb-p2 { background: repeating-linear-gradient(45deg,#161616,#161616 8px,#111 8px,#111 16px); }
+  .thumb-p3 { background: radial-gradient(circle at 30% 40%, #1e1a10 0%, #111 70%); }
+  .thumb-p4 { background: repeating-linear-gradient(-45deg,#161616,#161616 6px,#111 6px,#111 12px); }
+  .thumb-p5 { background: linear-gradient(135deg, #111 0%, #181818 50%, #111 100%); }
+  .thumb-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.35);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .work-card:hover .thumb-overlay { opacity: 1; }
+  .overlay-play {
+    width: 48px; height: 48px; border: 2px solid var(--accent);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  }
+  .work-info { padding: 1rem 1.25rem; }
+  .work-cat { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+  .work-title { font-size: 0.95rem; font-weight: 400; color: var(--text); }
+  .work-meta { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+  /* CONTACT */
+  .contact-section {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 6rem; align-items: start; padding: 6rem 4rem;
+  }
+  .contact-left h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 0.95; margin-bottom: 1.5rem;
+  }
+  .contact-left h2 span { color: var(--accent); display: block; }
+  .contact-left p { color: var(--muted); font-size: 0.95rem; margin-bottom: 2rem; }
+  .contact-links { display: flex; flex-direction: column; gap: 1rem; }
+  .contact-link {
+    display: flex; align-items: center; gap: 1rem;
+    color: var(--muted); text-decoration: none; font-size: 0.85rem;
+    transition: color 0.2s; border-bottom: 1px solid var(--border); padding-bottom: 1rem;
+  }
+  .contact-link:hover { color: var(--text); }
+  .contact-icon {
+    width: 36px; height: 36px; border: 1px solid var(--border);
+    border-radius: 2px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; transition: border-color 0.2s; background: var(--bg2);
+  }
+  .contact-link:hover .contact-icon { border-color: var(--accent); color: var(--accent); }
+  .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+  .form-input, .form-textarea {
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text); padding: 0.75rem 1rem;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    font-weight: 300; outline: none; border-radius: 2px; transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-textarea:focus { border-color: rgba(232,255,71,0.4); }
+  .form-textarea { height: 120px; resize: none; }
+  .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
+  .submit-btn {
+    background: var(--accent); color: #0a0a0a;
+    padding: 0.85rem; font-size: 0.8rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    font-weight: 500; font-family: 'DM Sans', sans-serif;
+    border: none; cursor: pointer; transition: opacity 0.2s; border-radius: 2px;
+  }
+  .submit-btn:hover { opacity: 0.85; }
+
+  /* FOOTER */
+  footer {
+    padding: 2rem 4rem; border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg);
+  }
+  .footer-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; letter-spacing: 0.1em; color: var(--accent); }
+  .footer-copy { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em; }
+  .footer-socials { display: flex; gap: 1rem; }
+  .social-btn {
+    width: 32px; height: 32px; border: 1px solid var(--border);
+    border-radius: 2px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; color: var(--muted); text-decoration: none; transition: all 0.2s;
+  }
+  .social-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { gap: 1.5rem; }
+    section { padding: 4rem 1.5rem; }
+    .hero { padding: 0 1.5rem 4rem; }
+    .hero-reel { display: none; }
+    .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .work-grid { grid-template-columns: 1fr; }
+    .work-card:first-child { grid-column: span 1; }
+    .contact-section { grid-template-columns: 1fr; gap: 3rem; padding: 4rem 1.5rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to My Portfolio</h1>
-    </header>
-    <main>
-        <section>
-            <h2>About Me</h2>
-            <p>Hello! I'm a passionate developer with a love for creating web applications.</p>
-        </section>
-        <section>
-            <h2>Projects</h2>
-            <ul>
-                <li>Project 1: Web App</li>
-                <li>Project 2: Mobile App</li>
-                <li>Project 3: Game</li>
-            </ul>
-        </section>
-        <section>
-            <h2>Contact</h2>
-            <p>Email: example@example.com</p>
-        </section>
-    </main>
-    <footer>
-        <p>&copy; 2026 My Portfolio</p>
-    </footer>
+
+<nav>
+  <div class="nav-logo">ALEX.EDIT</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-reel">
+    <div class="hero-reel-inner">
+      <div class="play-btn" onclick="alert('Add your showreel link here!')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M6 4l9 5-9 5V4z" fill="#e8ff47"/>
+        </svg>
+      </div>
+      <span class="reel-label">Watch Showreel 2024</span>
+    </div>
+    <div class="reel-badge">▶ Reel</div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-tag">Video Editor & Motion Designer</div>
+    <h1 class="hero-name">Your<br><span>Name</span><br>Here</h1>
+    <p class="hero-title">Crafting cinematic stories — frame by frame.</p>
+    <div class="hero-cta">
+      <a href="#work" class="btn-primary">View Work</a>
+      <a href="#contact" class="btn-ghost">Let's talk</a>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="marquee-item"><span class="marquee-dot">✦</span> Premiere Pro</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> After Effects</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> DaVinci Resolve</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> Color Grading</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> Motion Graphics</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> Sound Design</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> VFX</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> Storytelling</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> Premiere Pro</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> After Effects</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> DaVinci Resolve</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> Color Grading</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> Motion Graphics</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> Sound Design</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> VFX</span>
+    <span class="marquee-item"><span class="marquee-dot">✦</span> Storytelling</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">About me</div>
+  <div class="about-grid">
+    <div class="about-photo-wrap">
+      <div class="about-photo">
+        <div class="about-photo-icon">📷</div>
+        <span>Your photo here</span>
+      </div>
+      <div class="about-accent-line"></div>
+      <div class="about-stats">
+        <div class="stat-box"><div class="stat-num">5+</div><div class="stat-desc">Years Exp.</div></div>
+        <div class="stat-box"><div class="stat-num">120</div><div class="stat-desc">Projects Done</div></div>
+        <div class="stat-box"><div class="stat-num">40</div><div class="stat-desc">Happy Clients</div></div>
+        <div class="stat-box"><div class="stat-num">3</div><div class="stat-desc">Awards Won</div></div>
+      </div>
+    </div>
+    <div class="about-text">
+      <h2>Telling stories<br>through the lens</h2>
+      <p>Hi, I'm [Your Name] — a passionate video editor based in [Your City]. I specialize in transforming raw footage into compelling visual narratives that connect with audiences.</p>
+      <p>From brand films and documentaries to music videos and social content, I bring a keen eye for pacing, rhythm, and storytelling to every project I touch.</p>
+      <p>Let's collaborate and bring your vision to life.</p>
+      <div class="skills-row">
+        <span class="skill-tag">Premiere Pro</span>
+        <span class="skill-tag">After Effects</span>
+        <span class="skill-tag">DaVinci Resolve</span>
+        <span class="skill-tag">Final Cut Pro</span>
+        <span class="skill-tag">Mocha Pro</span>
+        <span class="skill-tag">Color Grading</span>
+        <span class="skill-tag">Sound Design</span>
+        <span class="skill-tag">Motion Graphics</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WORK -->
+<section id="work">
+  <div class="work-header">
+    <div>
+      <div class="section-label">Selected work</div>
+      <h2>My Projects</h2>
+    </div>
+    <div class="filter-row">
+      <button class="filter-btn active">All</button>
+      <button class="filter-btn">Brand</button>
+      <button class="filter-btn">Music</button>
+      <button class="filter-btn">Doc</button>
+    </div>
+  </div>
+  <div class="work-grid">
+    <div class="work-card">
+      <div class="work-thumb"><div class="thumb-pattern thumb-p1"></div><div class="thumb-overlay"><div class="overlay-play"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3l9 5-9 5V3z" fill="#e8ff47"/></svg></div></div></div>
+      <div class="work-info"><div class="work-cat">Brand Film</div><div class="work-title">Kinetic — Product Launch Campaign</div><div class="work-meta">2024 · 2:30 min</div></div>
+    </div>
+    <div class="work-card">
+      <div class="work-thumb"><div class="thumb-pattern thumb-p2"></div><div class="thumb-overlay"><div class="overlay-play"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3l9 5-9 5V3z" fill="#e8ff47"/></svg></div></div></div>
+      <div class="work-info"><div class="work-cat">Music Video</div><div class="work-title">Neon Pulse — Official MV</div><div class="work-meta">2024 · 3:45 min</div></div>
+    </div>
+    <div class="work-card">
+      <div class="work-thumb"><div class="thumb-pattern thumb-p3"></div><div class="thumb-overlay"><div class="overlay-play"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3l9 5-9 5V3z" fill="#e8ff47"/></svg></div></div></div>
+      <div class="work-info"><div class="work-cat">Documentary</div><div class="work-title">Roots — Short Doc</div><div class="work-meta">2023 · 12:00 min</div></div>
+    </div>
+    <div class="work-card">
+      <div class="work-thumb"><div class="thumb-pattern thumb-p4"></div><div class="thumb-overlay"><div class="overlay-play"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3l9 5-9 5V3z" fill="#e8ff47"/></svg></div></div></div>
+      <div class="work-info"><div class="work-cat">Social Content</div><div class="work-title">Aura Skincare — Reel Series</div><div class="work-meta">2024 · 0:30 min</div></div>
+    </div>
+    <div class="work-card">
+      <div class="work-thumb"><div class="thumb-pattern thumb-p5"></div><div class="thumb-overlay"><div class="overlay-play"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M5 3l9 5-9 5V3z" fill="#e8ff47"/></svg></div></div></div>
+      <div class="work-info"><div class="work-cat">Event Coverage</div><div class="work-title">Summit 2023 — Highlights</div><div class="work-meta">2023 · 5:00 min</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="contact-section">
+  <div class="contact-left">
+    <div class="section-label">Get in touch</div>
+    <h2>Let's create<br><span>something great</span></h2>
+    <p>Have a project in mind? Whether it's a brand film, music video, or social content — I'd love to hear about it. Let's make it happen.</p>
+    <div class="contact-links">
+      <a href="mailto:your@email.com" class="contact-link"><div class="contact-icon">✉</div>your@email.com</a>
+      <a href="#" class="contact-link"><div class="contact-icon">in</div>linkedin.com/in/yourname</a>
+      <a href="#" class="contact-link"><div class="contact-icon">▶</div>youtube.com/yourchannel</a>
+      <a href="#" class="contact-link"><div class="contact-icon">◎</div>instagram.com/yourhandle</a>
+    </div>
+  </div>
+  <div>
+    <div class="contact-form">
+      <div class="form-group"><label class="form-label">Your name</label><input class="form-input" type="text" placeholder="Alex Johnson" /></div>
+      <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" placeholder="hello@example.com" /></div>
+      <div class="form-group"><label class="form-label">Project type</label><input class="form-input" type="text" placeholder="Brand Film / Music Video / Other" /></div>
+      <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" placeholder="Tell me about your project..."></textarea></div>
+      <button class="submit-btn" onclick="alert('Form submitted!')">Send Message →</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">ALEX.EDIT</div>
+  <div class="footer-copy">© 2024 · All rights reserved</div>
+  <div class="footer-socials">
+    <a href="#" class="social-btn">YT</a>
+    <a href="#" class="social-btn">IG</a>
+    <a href="#" class="social-btn">LI</a>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+</script>
 </body>
 </html>
